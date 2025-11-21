@@ -1,0 +1,183 @@
+/* src/styles.css - Dark Mode & High Contrast */
+
+/* Reset y Base */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif; /* Asegura fuente limpia */
+  user-select: none;
+}
+
+/* Contenedor principal del HUD */
+.hud-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Paneles de estado (Arriba) */
+.hud-top-panel {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+.stat-card {
+  background: rgba(15, 23, 42, 0.85); /* Slate 900 semi-transparente */
+  backdrop-filter: blur(12px);
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  width: 280px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  color: #f1f5f9;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.progress-bar-bg {
+  background: #334155; /* Slate 700 */
+  height: 0.75rem;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Zona central interactiva */
+.hud-center-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  pointer-events: auto;
+}
+
+/* Botón de Inicio Estilizado */
+.start-btn {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #34d399; /* Emerald 400 */
+  padding: 1.5rem 4rem;
+  border-radius: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  border: 2px solid #334155;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(52, 211, 153, 0.1), 0 10px 20px rgba(0,0,0,0.4);
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.start-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 30px rgba(52, 211, 153, 0.2), 0 15px 25px rgba(0,0,0,0.5);
+  border-color: #34d399;
+  color: #6ee7b7;
+}
+
+/* Tarjetas de Información (Tutoriales/Mensajes) */
+.info-card {
+  background: rgba(15, 23, 42, 0.95); /* Casi opaco oscuro */
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  text-align: center;
+  max-width: 550px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  color: #f8fafc;
+}
+
+/* Teclas WASD Visuales */
+.key-container {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 2rem 0;
+}
+
+.key-cap {
+  background: linear-gradient(to bottom, #475569, #334155);
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  border-bottom: 4px solid #1e293b; /* Efecto 3D */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 2px rgba(0,0,0,0.5);
+}
+
+/* Opciones de Diálogo */
+.dialogue-options {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  min-width: 500px;
+}
+
+.dialogue-btn {
+  background: rgba(30, 41, 59, 0.7); /* Slate 800 */
+  border: 2px solid #334155;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #e2e8f0;
+  position: relative;
+  overflow: hidden;
+}
+
+.dialogue-btn:hover {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: #60a5fa; /* Blue 400 */
+  transform: scale(1.02);
+}
+
+.dialogue-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.cost-badge {
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
