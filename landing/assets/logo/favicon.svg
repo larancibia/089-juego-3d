@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="fAnxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f43f5e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#be123c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="fMskGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#34d399;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Favicon simplificado -->
+  <circle cx="32" cy="32" r="30" fill="url(#fAnxGrad)"/>
+  <path d="M 10 32 Q 10 14, 32 14 Q 54 14, 54 32 L 54 27 Q 54 10, 32 10 Q 10 10, 10 27 Z" 
+        fill="url(#fMskGrad)" opacity="0.95"/>
+  
+  <!-- Ojos simples -->
+  <circle cx="22" cy="25" r="3" fill="#0f172a"/>
+  <circle cx="42" cy="25" r="3" fill="#0f172a"/>
+  <circle cx="23" cy="24" r="1.2" fill="#fff"/>
+  <circle cx="43" cy="24" r="1.2" fill="#fff"/>
+  
+  <!-- Sonrisa -->
+  <path d="M 20 35 Q 32 42, 44 35" stroke="#0f172a" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>

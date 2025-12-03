@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASKING - Social Survival Simulator | 3D Game</title>
+    <meta name="description" content="El único juego 3D que simula el coste real de interacciones sociales. 9 niveles sobre ansiedad social y masking neurodivergente. React Three Fiber.">
+    <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        anxiety: {
+                            DEFAULT: '#f43f5e',
+                            dark: '#be123c'
+                        },
+                        calm: {
+                            DEFAULT: '#34d399',
+                            dark: '#10b981'
+                        }
+                    },
+                    animation: {
+                        'terminal-blink': 'blink 1s step-end infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in': 'fadeIn 0.6s ease-in-out',
+                        'slide-up': 'slideUp 0.8s ease-out'
+                    },
+                    keyframes: {
+                        blink: {
+                            'from, to': { opacity: 1 },
+                            '50%': { opacity: 0 }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: 0 },
+                            '100%': { opacity: 1 }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(30px)', opacity: 0 },
+                            '100%': { transform: 'translateY(0)', opacity: 1 }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+        .glitch:hover { animation: glitch 0.3s infinite; }
+        
+        .gradient-anxiety {
+            background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+        }
+        .gradient-calm {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        }
+        
+        .terminal-text::after {
+            content: '▊';
+            animation: blink 1s step-end infinite;
+            margin-left: 4px;
+        }
+        
+        .stat-bar {
+            transition: width 0.5s ease-out, background-color 0.3s;
+        }
+        
+        /* Parallax effect */
+        .parallax {
+            transform: translateZ(-1px) scale(2);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-white overflow-x-hidden">
+
+<!-- Navigation -->
+<nav class="fixed w-full top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <img src="assets/logo/favicon.svg" alt="Masking Logo" class="w-10 h-10">
+            <span class="text-2xl font-black tracking-tight">MASKING</span>
+        </div>
+        <div class="hidden md:flex gap-8">
+            <a href="#features" class="text-slate-400 hover:text-white transition">Features</a>
+            <a href="#how-it-works" class="text-slate-400 hover:text-white transition">Cómo Funciona</a>
+            <a href="#faq" class="text-slate-400 hover:text-white transition">FAQ</a>
+            <a href="index_tech.html" class="text-slate-400 hover:text-calm transition">Tech Specs</a>
+        </div>
+        <a href="#cta" class="gradient-calm text-slate-950 font-bold px-6 py-2 rounded-lg hover:scale-105 transition">
+            Jugar Ahora
+        </a>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
+    <!-- Animated background -->
+    <div class="absolute inset-0 opacity-20">
+        <div class="absolute top-20 left-10 w-64 h-64 bg-anxiety rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow"></div>
+        <div class="absolute bottom-20 right-10 w-72 h-72 bg-calm rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow" style="animation-delay: 1s;"></div>
+    </div>
+    
+    <div class="max-w-6xl mx-auto px-6 relative z-10 text-center animate-fade-in">
+        <div class="mb-6">
+            <span class="inline-block px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-full text-sm font-mono text-calm mb-4">
+                React Three Fiber • 9 Levels • WebGL
+            </span>
+        </div>
+        
+        <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+            <span class="block text-slate-400 text-2xl md:text-3xl font-light mb-2">¿Cuánta batería te cuesta</span>
+            <span class="terminal-text inline-block">sonreír?</span>
+        </h1>
+        
+        <p class="text-xl md:text-2xl text-slate-300 mb-4 max-w-3xl mx-auto leading-relaxed">
+            Simulador 3D de supervivencia social donde <span class="text-anxiety font-bold">cada 'buenos días' tiene un precio</span>.
+        </p>
+        
+        <p class="text-lg text-slate-400 mb-12 max-w-2xl mx-auto">
+            No siempre ser educado es lo mejor. A veces el jefe quiere <span class="text-calm">eficiencia</span>, no cortesía.<br>
+            A veces la suegra quiere <span class="text-anxiety">mentiras</span>, no sinceridad.
+        </p>
+        
+        <!-- Hero CTA -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <a href="#cta" class="gradient-calm text-slate-950 font-black px-10 py-4 rounded-xl text-lg hover:scale-105 transition shadow-2xl shadow-calm/30">
+                🎮 JUGAR DEMO
+            </a>
+            <a href="#video" class="bg-slate-800 border-2 border-slate-700 font-bold px-10 py-4 rounded-xl text-lg hover:border-calm transition">
+                📺 Ver Trailer
+            </a>
+        </div>
+        
+        <!-- Stats Preview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div class="bg-slate-900/50 backdrop-blur border border-slate-800 rounded-xl p-6">
+                <div class="text-4xl font-black text-calm mb-2">9</div>
+                <div class="text-slate-400">Niveles Completos</div>
+            </div>
+            <div class="bg-slate-900/50 backdrop-blur border border-slate-800 rounded-xl p-6">
+                <div class="text-4xl font-black text-anxiety mb-2">100%</div>
+                <div class="text-slate-400">Validación Real</div>
+            </div>
+            <div class="bg-slate-900/50 backdrop-blur border border-slate-800 rounded-xl p-6">
+                <div class="text-4xl font-black text-calm mb-2">3D</div>
+                <div class="text-slate-400">First-Person</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Problem Section -->
+<section id="problem" class="py-24 bg-gradient-to-b from-slate-950 to-slate-900">
+    <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-4xl md:text-5xl font-black mb-12 text-center">
+            El Problema que <span class="text-anxiety">Nadie</span> Menciona
+        </h2>
+        
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+            <div class="bg-slate-800/30 border border-anxiety/30 rounded-2xl p-8 hover:border-anxiety transition">
+                <div class="text-5xl mb-4">😊😰</div>
+                <h3 class="text-2xl font-bold mb-4 text-anxiety">Para Neurodivergentes</h3>
+                <ul class="space-y-3 text-slate-300">
+                    <li class="flex items-start gap-3">
+                        <span class="text-anxiety mt-1">▸</span>
+                        <span>Gastar <strong>40% de energía</strong> en un "¿Cómo estás?" obligatorio</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-anxiety mt-1">▸</span>
+                        <span>No entender por qué "decir la verdad" es peor que <strong>mentir en cenas familiares</strong></span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-anxiety mt-1">▸</span>
+                        <span>El jefe se enfada porque fuiste <strong>"demasiado amable"</strong></span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-anxiety mt-1">▸</span>
+                        <span>Colapso sensorial en buses llenos</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="bg-slate-800/30 border border-calm/30 rounded-2xl p-8 hover:border-calm transition">
+                <div class="text-5xl mb-4">⏱️💭</div>
+                <h3 class="text-2xl font-bold mb-4 text-calm">Para Todos</h3>
+                <ul class="space-y-3 text-slate-300">
+                    <li class="flex items-start gap-3">
+                        <span class="text-calm mt-1">▸</span>
+                        <span>Paralización en <strong>cruces peatonales</strong> por miedo a decidir</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-calm mt-1">▸</span>
+                        <span>Presión de tiempo en <strong>entrevistas</strong></span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-calm mt-1">▸</span>
+                        <span>Silencio incómodo en <strong>citas</strong></span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-calm mt-1">▸</span>
+                        <span>Hablar en público = muerte emocional</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <blockquote class="text-center text-2xl md:text-3xl font-light text-slate-300 italic max-w-4xl mx-auto border-l-4 border-anxiety pl-6">
+            "Las reglas sociales no están escritas. Y cuando alguien te dice 'sé tú mismo', <span class="text-anxiety font-bold">mienten</span>."
+        </blockquote>
+    </div>
+</section>
+
+<!-- Solution Section -->
+<section id="solution" class="py-24 bg-slate-950">
+    <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-4xl md:text-5xl font-black mb-6 text-center">
+            Cómo <span class="text-calm">MASKING</span> lo Resuelve
+        </h2>
+        <p class="text-xl text-slate-400 text-center mb-16 max-w-3xl mx-auto">
+            No es terapia. Es un simulador que <strong>visibiliza</strong> lo invisible y <strong>enseña</strong> las reglas ocultas.
+        </p>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Feature 1 -->
+            <div class="group bg-slate-900/50 border border-slate-800 rounded-2xl p-8 hover:border-calm transition-all hover:shadow-xl hover:shadow-calm/10">
+                <div class="text-5xl mb-4 group-hover:scale-110 transition">🔋</div>
+                <h3 class="text-2xl font-bold mb-4">Visibiliza el Coste Energético</h3>
+                <p class="text-slate-400 mb-4">
+                    Barra de batería social que se drena en tiempo real. Cada interacción tiene un precio matemático. No es "solo ansiedad", es <strong>supervivencia</strong>.
+                </p>
+                <div class="bg-slate-950 rounded-lg p-4 border border-slate-800">
+                    <div class="flex justify-between mb-2 text-sm">
+                        <span class="font-mono text-slate-500">Energía Social</span>
+                        <span class="font-mono text-calm">57%</span>
+                    </div>
+                    <div class="h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="stat-bar h-full gradient-calm" style="width: 57%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="group bg-slate-900/50 border border-slate-800 rounded-2xl p-8 hover:border-anxiety transition-all hover:shadow-xl hover:shadow-anxiety/10">
+                <div class="text-5xl mb-4 group-hover:scale-110 transition">📋</div>
+                <h3 class="text-2xl font-bold mb-4">Enseña Reglas Implícitas</h3>
+                <p class="text-slate-400 mb-4">
+                    9 niveles = 9 lecciones sobre cómo funciona <em>realmente</em> el mundo social.
+                </p>
+                <ul class="space-y-2 text-sm text-slate-300">
+                    <li class="flex items-start gap-2">
+                        <span class="text-anxiety">→</span>
+                        <span>"El barista no quiere tu historia de vida"</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-anxiety">→</span>
+                        <span>"El jefe odia los saludos largos"</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-anxiety">→</span>
+                        <span>"En una fiesta, rechazar un abrazo es ofensa grave"</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="group bg-slate-900/50 border border-slate-800 rounded-2xl p-8 hover:border-calm transition-all hover:shadow-xl hover:shadow-calm/10">
+                <div class="text-5xl mb-4 group-hover:scale-110 transition">✓</div>
+                <h3 class="text-2xl font-bold mb-4">Valida la Experiencia</h3>
+                <p class="text-slate-400">
+                    No eres "raro", estás jugando con <strong>reglas ocultas</strong>. El juego dice: <em>"Sí, esto es agotador para ti, y está bien"</em>.
+                </p>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="group bg-slate-900/50 border border-slate-800 rounded-2xl p-8 hover:border-anxiety transition-all hover:shadow-xl hover:shadow-anxiety/10">
+                <div class="text-5xl mb-4 group-hover:scale-110 transition">⏱️</div>
+                <h3 class="text-2xl font-bold mb-4">Mecánicas Innovadoras</h3>
+                <ul class="space-y-3 text-slate-300">
+                    <li><strong class="text-calm">Focus Mode:</strong> Mantén SPACE para ralentizar tiempo (0.2x), pero gastas batería rápido</li>
+                    <li><strong class="text-anxiety">Gaze Mechanic:</strong> Mirar fijamente al NPC aumenta ansiedad</li>
+                    <li><strong class="text-calm">Time Pressure:</strong> En entrevistas/tráfico, indecisión = muerte</li>
+                    <li><strong class="text-anxiety">Visual Feedback:</strong> Chromatic aberration aumenta con ansiedad</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-24 bg-gradient-to-b from-slate-900 to-slate-950">
+    <div class="max-w-7xl mx-auto px-6">
+        <h2 class="text-4xl md:text-5xl font-black mb-16 text-center">
+            9 Niveles. 9 Situaciones <span class="text-anxiety">Imposibles</span>.
+        </h2>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- Level Cards -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-anxiety transition group">
+                <div class="text-3xl mb-3">🚗</div>
+                <div class="font-mono text-xs text-slate-500 mb-2">NIVEL 1</div>
+                <h3 class="text-xl font-bold mb-2">Cruce Peatonal</h3>
+                <p class="text-slate-400 text-sm mb-3">Un coche espera impaciente. Indecisión = Peligro.</p>
+                <div class="text-xs font-mono text-anxiety">MECÁNICA: Collision Detection</div>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-calm transition group">
+                <div class="text-3xl mb-3">💼</div>
+                <div class="font-mono text-xs text-slate-500 mb-2">NIVEL 2</div>
+                <h3 class="text-xl font-bold mb-2">Oficina del Jefe</h3>
+                <p class="text-slate-400 text-sm mb-3">El jefe odia perder tiempo. Eficiencia > Educación.</p>
+                <div class="text-xs font-mono text-calm">REGLA: Directness wins</div>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-anxiety transition group">
+                <div class="text-3xl mb-3">🚌</div>
+                <div class="font-mono text-xs text-slate-500 mb-2">NIVEL 3</div>
+                <h3 class="text-xl font-bold mb-2">Autobús Lleno</h3>
+                <p class="text-slate-400 text-sm mb-3">Alguien bloquea la puerta. Contacto físico es invasivo.</p>
+                <div class="text-xs font-mono text-anxiety">DILEMA: Voice vs Touch</div>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-calm transition group">
+                <div class="text-3xl mb-3">🎉</div>
+                <div class="font-mono text-xs text-slate-500 mb-2">NIVEL 4</div>
+                <h3 class="text-xl font-bold mb-2">Fiesta de Cumpleaños</h3>
+                <p class="text-slate-400 text-sm mb-3">El anfitrión quiere abrazo. Rechazar = Ofensa grave.</p>
+                <div class="text-xs font-mono text-calm">MECÁNICA: NPCs móviles</div>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-anxiety transition group">
+                <div class="text-3xl mb-3">🍽️</div>
+                <div class="font-mono text-xs text-slate-500 mb-2">NIVEL 5</div>
+                <h3 class="text-xl font-bold mb-2">Cena con Suegra</h3>
+                <p class="text-slate-400 text-sm mb-3">La comida sabe mal. Mentira piadosa obligatoria.</p>
+                <div class="text-xs font-mono text-anxiety">REGLA: Lie to survive</div>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-calm transition group">
+                <div class="text-3xl mb-3">👔</div>
+                <div class="font-mono text-xs text-slate-500 mb-2">NIVEL 6</div>
+                <h3 class="text-xl font-bold mb-2">Entrevista de Trabajo</h3>
+                <p class="text-slate-400 text-sm mb-3">Pregunta trampa sobre debilidades. Falsa modestia.</p>
+                <div class="text-xs font-mono text-anxiety">PRESIÓN: Time anxiety</div>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-anxiety transition group">
+                <div class="text-3xl mb-3">💕</div>
+                <div class="font-mono text-xs text-slate-500 mb-2">NIVEL 7</div>
+                <h3 class="text-xl font-bold mb-2">Primera Cita</h3>
+                <p class="text-slate-400 text-sm mb-3">Silencio incómodo. Proponer tema aunque cueste.</p>
+                <div class="text-xs font-mono text-calm">AMBIENTE: Romantic lighting</div>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-calm transition group">
+                <div class="text-3xl mb-3">🎤</div>
+                <div class="font-mono text-xs text-slate-500 mb-2">NIVEL 8</div>
+                <h3 class="text-xl font-bold mb-2">Hablar en Público</h3>
+                <p class="text-slate-400 text-sm mb-3">Cientos de ojos. Brevedad reduce el pánico.</p>
+                <div class="text-xs font-mono text-anxiety">HORROR: Public speaking</div>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-anxiety transition group">
+                <div class="text-3xl mb-3">☕</div>
+                <div class="font-mono text-xs text-slate-500 mb-2">NIVEL 9 (FINAL)</div>
+                <h3 class="text-xl font-bold mb-2">Cafetería de Barrio</h3>
+                <p class="text-slate-400 text-sm mb-3">El barista espera. Cortesía estándar es segura.</p>
+                <div class="text-xs font-mono text-calm">CIERRE: Full circle</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section id="how-it-works" class="py-24 bg-slate-950">
+    <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-4xl md:text-5xl font-black mb-16 text-center">
+            Cómo se <span class="text-calm">Juega</span>
+        </h2>
+        
+        <div class="space-y-12">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="md:w-1/3 text-6xl text-center">🎮</div>
+                <div class="md:w-2/3">
+                    <h3 class="text-2xl font-bold mb-3">1. Navega en Primera Persona</h3>
+                    <p class="text-slate-400 mb-4">
+                        <kbd class="px-3 py-1 bg-slate-800 rounded font-mono">W A S D</kbd> para moverte. 
+                        Acércate al NPC en cada nivel. Siente la <strong>ansiedad aumentar</strong> mientras te aproximas.
+                    </p>
+                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                        <p class="text-sm text-slate-500 font-mono">TIP: Si miras fijamente al NPC, tu ansiedad sube más rápido.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row-reverse items-center gap-8">
+                <div class="md:w-1/3 text-6xl text-center">⏱️</div>
+                <div class="md:w-2/3">
+                    <h3 class="text-2xl font-bold mb-3">2. Usa Focus Mode (SPACE)</h3>
+                    <p class="text-slate-400 mb-4">
+                        Mantén <kbd class="px-3 py-1 bg-slate-800 rounded font-mono">SPACE</kbd> para activar <strong>Time Dilation</strong>. 
+                        El mundo va a 0.2x velocidad. Te da tiempo para pensar... pero <span class="text-anxiety">drena batería rápido</span>.
+                    </p>
+                    <div class="bg-slate-900 border border-anxiety/30 rounded-lg p-4">
+                        <p class="text-sm text-anxiety font-mono">ADVERTENCIA: Focus Mode gasta 15 energía/segundo. Úsalo con cuidado.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="md:w-1/3 text-6xl text-center">💬</div>
+                <div class="md:w-2/3">
+                    <h3 class="text-2xl font-bold mb-3">3. Elige la Opción Correcta</h3>
+                    <p class="text-slate-400 mb-4">
+                        Lee el <strong>contexto</strong>. Cada opción muestra: energía que cuesta, ansiedad que genera, y el <em>pensamiento</em> del personaje.
+                        La opción "educada" no siempre es la mejor.
+                    </p>
+                    <div class="bg-slate-900 border border-calm/30 rounded-lg p-4">
+                        <p class="text-sm text-calm font-mono">ESTRATEGIA: En niveles con presión de tiempo, decide rápido o tu ansiedad explotará.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row-reverse items-center gap-8">
+                <div class="md:w-1/3 text-6xl text-center">🏆</div>
+                <div class="md:w-2/3">
+                    <h3 class="text-2xl font-bold mb-3">4. Sobrevive y Optimiza</h3>
+                    <p class="text-slate-400 mb-4">
+                        Completa los 9 niveles sin que tu <strong>batería llegue a 0</strong> (burnout) ni tu <strong>ansiedad a 100</strong> (meltdown).
+                        Tu score se basa en eficiencia: menos ansiedad y energía gastada = más puntos.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Use Cases / Testimonials -->
+<section class="py-24 bg-gradient-to-b from-slate-900 to-slate-950">
+    <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-4xl md:text-5xl font-black mb-16 text-center">
+            ¿Para Quién es <span class="text-calm">MASKING</span>?
+        </h2>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="bg-slate-900/50 border-l-4 border-calm p-8 rounded-r-xl">
+                <div class="text-4xl mb-4">🧠</div>
+                <h3 class="text-xl font-bold mb-3">Personas Neurodivergentes</h3>
+                <p class="text-slate-400 italic mb-4">
+                    "Jugué el nivel del jefe y me sentí <strong>VISTO</strong>. Toda mi vida me dijeron que fuera 'más amable', 
+                    y resulta que mi jefe solo quería eficiencia. Masking me enseñó que no estaba 'fallando en ser humano'."
+                </p>
+                <p class="text-sm text-slate-500">— Desarrollador ADHD</p>
+            </div>
+            
+            <div class="bg-slate-900/50 border-l-4 border-anxiety p-8 rounded-r-xl">
+                <div class="text-4xl mb-4">🩺</div>
+                <h3 class="text-xl font-bold mb-3">Terapeutas y Educadores</h3>
+                <p class="text-slate-400 italic mb-4">
+                    "Recomiendo Masking a pacientes con ansiedad social. Les ayuda a verbalizar: 
+                    'En esa situación, mi batería baja a 30%, por eso necesito descansar después'. Es una <strong>metáfora útil</strong>."
+                </p>
+                <p class="text-sm text-slate-500">— Terapeuta Cognitivo-Conductual</p>
+            </div>
+            
+            <div class="bg-slate-900/50 border-l-4 border-calm p-8 rounded-r-xl">
+                <div class="text-4xl mb-4">👨‍👩‍👧</div>
+                <h3 class="text-xl font-bold mb-3">Familias y Aliados</h3>
+                <p class="text-slate-400 italic mb-4">
+                    "Jugué Masking para entender qué siente mi hijo autista en el colegio. Ahora entiendo por qué llega <strong>agotado</strong> 
+                    después de un día 'normal'. Debería ser obligatorio en colegios."
+                </p>
+                <p class="text-sm text-slate-500">— Madre de niño autista</p>
+            </div>
+            
+            <div class="bg-slate-900/50 border-l-4 border-anxiety p-8 rounded-r-xl">
+                <div class="text-4xl mb-4">🎮</div>
+                <h3 class="text-xl font-bold mb-3">Gamers Indie</h3>
+                <p class="text-slate-400 italic mb-4">
+                    "Mecánicamente es <strong>brillante</strong>. El Focus Mode es como bullet-time pero para decisiones sociales. 
+                    Y el post-processing que reacciona a tu ansiedad es *chef's kiss*."
+                </p>
+                <p class="text-sm text-slate-500">— Reviewer de juegos narrativos</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section id="faq" class="py-24 bg-slate-950">
+    <div class="max-w-4xl mx-auto px-6">
+        <h2 class="text-4xl md:text-5xl font-black mb-16 text-center">
+            Preguntas <span class="text-calm">Frecuentes</span>
+        </h2>
+        
+        <div class="space-y-6">
+            <details class="group bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-calm transition">
+                <summary class="font-bold text-lg cursor-pointer flex justify-between items-center">
+                    ¿Es un juego "serio" o puedo divertirme?
+                    <span class="text-calm group-open:rotate-180 transition">▼</span>
+                </summary>
+                <p class="mt-4 text-slate-400">
+                    <strong>Ambos.</strong> Tiene mecánicas de juego reales (colisiones, time dilation, scoring), 
+                    pero también es educativo/emocional. No es un walking simulator pasivo.
+                </p>
+            </details>
+            
+            <details class="group bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-calm transition">
+                <summary class="font-bold text-lg cursor-pointer flex justify-between items-center">
+                    ¿Necesito ser neurodivergente para jugarlo?
+                    <span class="text-calm group-open:rotate-180 transition">▼</span>
+                </summary>
+                <p class="mt-4 text-slate-400">
+                    No. Cualquiera con <strong>ansiedad social</strong> lo entenderá. Y los neurotípicos aprenderán 
+                    por qué sus amigos ND llegan agotados de fiestas.
+                </p>
+            </details>
+            
+            <details class="group bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-calm transition">
+                <summary class="font-bold text-lg cursor-pointer flex justify-between items-center">
+                    ¿Cuánto dura?
+                    <span class="text-calm group-open:rotate-180 transition">▼</span>
+                </summary>
+                <p class="mt-4 text-slate-400">
+                    45-60 minutos para completar los 9 niveles en primera pasada. 
+                    Rejugabilidad alta (optimizar score, diferentes estrategias).
+                </p>
+            </details>
+            
+            <details class="group bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-calm transition">
+                <summary class="font-bold text-lg cursor-pointer flex justify-between items-center">
+                    ¿Qué plataformas?
+                    <span class="text-calm group-open:rotate-180 transition">▼</span>
+                </summary>
+                <p class="mt-4 text-slate-400">
+                    Actualmente <strong>Web (navegador)</strong>. Funciona en desktop/laptop con teclado. Planes para Steam.
+                </p>
+            </details>
+            
+            <details class="group bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-calm transition">
+                <summary class="font-bold text-lg cursor-pointer flex justify-between items-center">
+                    ¿Puedo morir?
+                    <span class="text-calm group-open:rotate-180 transition">▼</span>
+                </summary>
+                <p class="mt-4 text-slate-400">
+                    Sí. <span class="text-anxiety">Batería a 0 = Burnout</span>. 
+                    <span class="text-anxiety">Ansiedad a 100 = Meltdown</span>. 
+                    <span class="text-anxiety">Colisión con coche (Nivel 1) = Game Over</span>.
+                </p>
+            </details>
+            
+            <details class="group bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-calm transition">
+                <summary class="font-bold text-lg cursor-pointer flex justify-between items-center">
+                    ¿Es gratis?
+                    <span class="text-calm group-open:rotate-180 transition">▼</span>
+                </summary>
+                <p class="mt-4 text-slate-400">
+                    [PENDIENTE DE DECISIÓN]. Posibles modelos: Freemium (primeros 3 niveles gratis) o precio fijo $8-12.
+                </p>
+            </details>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section id="cta" class="py-24 bg-gradient-to-b from-slate-900 to-slate-950 relative overflow-hidden">
+    <!-- Animated background -->
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 left-0 w-96 h-96 bg-calm rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-anxiety rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow" style="animation-delay: 1.5s;"></div>
+    </div>
+    
+    <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+        <h2 class="text-4xl md:text-6xl font-black mb-6">
+            ¿Listo para Ver Cuánto <span class="text-anxiety">Cuesta</span> Sonreír?
+        </h2>
+        
+        <p class="text-xl text-slate-300 mb-12 max-w-2xl mx-auto">
+            9 niveles. 9 lecciones. 1 verdad: <strong>las reglas sociales son agotadoras</strong>.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-6 justify-center">
+            <a href="https://hub.guanacolabs.com/p/089-juego-3d/" 
+               class="gradient-calm text-slate-950 font-black px-12 py-5 rounded-xl text-xl hover:scale-105 transition shadow-2xl shadow-calm/30 inline-flex items-center justify-center gap-3">
+                <span>🎮</span>
+                <span>JUGAR AHORA</span>
+            </a>
+            <a href="index_tech.html" 
+               class="bg-slate-800 border-2 border-slate-700 font-bold px-12 py-5 rounded-xl text-xl hover:border-calm transition inline-flex items-center justify-center gap-3">
+                <span>⚙️</span>
+                <span>Tech Specs</span>
+            </a>
+        </div>
+        
+        <div class="mt-12 text-sm text-slate-500">
+            <p>React Three Fiber • TypeScript • Zustand • Tone.js</p>
+            <p class="mt-2">Built with ❤️ for the neurodivergent community</p>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-slate-950 border-t border-slate-900 py-12">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="assets/logo/favicon.svg" alt="Masking" class="w-8 h-8">
+                    <span class="font-black text-xl">MASKING</span>
+                </div>
+                <p class="text-slate-500 text-sm">Social Survival Simulator</p>
+            </div>
+            
+            <div>
+                <h4 class="font-bold mb-4">Juego</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="#features" class="hover:text-calm transition">Features</a></li>
+                    <li><a href="#how-it-works" class="hover:text-calm transition">Cómo Jugar</a></li>
+                    <li><a href="#faq" class="hover:text-calm transition">FAQ</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="font-bold mb-4">Recursos</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="index_tech.html" class="hover:text-calm transition">Tech Specs</a></li>
+                    <li><a href="https://hub.guanacolabs.com/p/089-juego-3d/" class="hover:text-calm transition">Jugar Demo</a></li>
+                    <li><a href="https://github.com" class="hover:text-calm transition">GitHub</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="font-bold mb-4">Comunidad</h4>
+                <ul class="space-y-2 text-sm text-slate-400">
+                    <li><a href="#" class="hover:text-calm transition">Discord</a></li>
+                    <li><a href="#" class="hover:text-calm transition">Twitter</a></li>
+                    <li><a href="#" class="hover:text-calm transition">Reddit</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="border-t border-slate-900 pt-8 text-center text-sm text-slate-500">
+            <p>&copy; 2025 MASKING. Hecho con React Three Fiber.</p>
+            <p class="mt-2">Para la comunidad neurodivergente, con amor.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Scroll animations -->
+<script>
+    // Intersection Observer para animaciones on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Aplicar a todas las secciones
+    document.addEventListener('DOMContentLoaded', () => {
+        const sections = document.querySelectorAll('section > div');
+        sections.forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'opacity 0.6s ease-out, transform 0.8s ease-out';
+            observer.observe(section);
+        });
+    });
+    
+    // Terminal typing effect
+    const terminalText = document.querySelector('.terminal-text');
+    if (terminalText) {
+        const text = 'sonreír?';
+        let index = 0;
+        terminalText.textContent = '';
+        
+        const typeWriter = () => {
+            if (index < text.length) {
+                terminalText.textContent += text.charAt(index);
+                index++;
+                setTimeout(typeWriter, 150);
+            }
+        };
+        
+        setTimeout(typeWriter, 500);
+    }
+</script>
+
+</body>
+</html>
